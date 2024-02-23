@@ -59,6 +59,17 @@ def extract_text_from_pdf_to_csv(pdf_file_obj):
             if "Date" in line:
                 address, date = line.split("Date")
                 csv_writer.writerow([address.strip()] + ['', '', ''] + ["Date " + date.strip()])
+                
+
+        description_index = next((i for i, line in enumerate(lines) if "Description" in line), None)
+
+        if description_index:
+            items_info = lines[invoice_start_index + 2:description_index] if description_index else []
+        else:
+            items_info = lines[invoice_start_index + 2:total_index] if total_index else []
+
+        for item_line in items_info:
+            csv_writer.writerow([item_line] + [''] * 5)
 
         # Writing items info
         csv_writer.writerow([''])
@@ -74,6 +85,8 @@ def extract_text_from_pdf_to_csv(pdf_file_obj):
             csv_writer.writerow(['', 'Total', '', '', total_amount_match.group(1)])
 
 
+        csv_writer.writerow([])
+        csv_writer.writerow([])
         footer_index = next((i for i, line in enumerate(lines) if "Thank you for choosing our services" in line), None)
         if footer_index is not None:
             csv_writer.writerow([lines[footer_index]])
