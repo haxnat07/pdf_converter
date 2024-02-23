@@ -38,9 +38,9 @@ def extract_text_from_pdf_to_csv(pdf_file_obj):
         # Writing company info to CSV
         for index, info_line in enumerate(company_info):
             if index == 0:
-                csv_writer.writerow([info_line] + [''] * 2 + [invoice_label])
+                csv_writer.writerow([info_line] + [''] * 3 + [invoice_label])
             else:
-                csv_writer.writerow([info_line] + [''] * 2)
+                csv_writer.writerow([info_line] + [''] * 3)
         
         csv_writer.writerow([])
         
@@ -51,10 +51,14 @@ def extract_text_from_pdf_to_csv(pdf_file_obj):
         bill_to_info = lines[bill_to_index:invoice_start_index] if bill_to_index else []
         invoice_info = lines[invoice_start_index:invoice_start_index+2] if invoice_start_index else []
         
-        for index in range(max(len(bill_to_info), len(invoice_info))):
-            bill_to_column = bill_to_info[index] if index < len(bill_to_info) else ""
-            invoice_column = invoice_info[index - len(bill_to_info)] if index >= len(bill_to_info) and index < len(invoice_info) else ""
-            csv_writer.writerow([bill_to_column] + [''] * 2 + [invoice_column])
+        for line in lines:
+            if "Invoice no." in line:
+                bill_to, invoice_no = line.split("Invoice no.")
+                csv_writer.writerow([bill_to.strip()] + ['', '', ''] + ["Invoice no. " + invoice_no.strip()])
+            
+            if "Date" in line:
+                address, date = line.split("Date")
+                csv_writer.writerow([address.strip()] + ['', '', ''] + ["Date " + date.strip()])
 
         # Writing items info
         csv_writer.writerow([''])
@@ -115,7 +119,7 @@ def upload_pdf(request):
             csv_data = extract_text_from_pdf_to_csv(pdf_file)
             
             response = HttpResponse(csv_data, content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="extracted_data.csv"'
+            response['Content-Disposition'] = 'attachment; filename="data.csv"'
             
             return response
     else:
