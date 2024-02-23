@@ -80,9 +80,32 @@ def extract_text_from_pdf_to_csv(pdf_file_obj):
             csv_writer.writerow([''] + list(match))
 
         # Write total amount if found
-        total_amount_match = re.search(r'Total\s+£(\d+\.\d+)', text)
-        if total_amount_match:
-            csv_writer.writerow(['', 'Total', '', '', total_amount_match.group(1)])
+        #total_amount_match = re.search(r'Total\s+£(\d+\.\d+)', text)
+        #if total_amount_match:
+        #    csv_writer.writerow(['', 'Total', '', '', total_amount_match.group(1)])
+            
+        sub_total_line = None
+        discount_line = None
+        total_line = None
+
+
+        for line in lines:
+            if "Sub Total" in line:
+                sub_total_line = line
+            elif "Discount" in line:
+                discount_line = line
+            elif "Total" in line and "Sub Total" not in line:
+                total_line = line
+
+
+        if sub_total_line:
+            csv_writer.writerow(['', '', '', ''] + [sub_total_line])
+
+        if discount_line:
+            csv_writer.writerow(['', '', '', ''] + [discount_line])
+
+        if total_line:
+            csv_writer.writerow(['', '', '', ''] + [total_line])
 
 
         csv_writer.writerow([])
