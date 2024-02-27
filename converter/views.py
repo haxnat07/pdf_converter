@@ -1,16 +1,49 @@
 import PyPDF2
 import csv
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .forms import PDFUploadForm
 from django.core.files.storage import default_storage
+from django.core.mail import send_mail
 
 import PyPDF2
 import csv
 import re
 from io import StringIO
 
+# Dev Phase S
 
+def homepage(request):
+    context = {}
+    return render(request, 'homepage.html', context)
+
+def about(request):
+    context = {}
+    return render(request, 'about.html', context)
+
+def contact(request):
+    context = {}
+    return render(request, 'contact.html', context)
+
+def mail_send(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        name_message = f"Name: {name}\nEmail: {email}\n\nMessage: {message}"
+        print(name, email, subject, message)
+    send_mail(
+        subject,
+        name_message,
+        'umaisyaqoob333@gmail.com',
+        ['umaisyaqoob333@gmail.com'],
+        fail_silently=False,
+    )
+    return HttpResponse("OK")
+
+
+# Dev Phase E
 
 def extract_text_from_pdf_to_csv(pdf_file_obj):
     reader = PyPDF2.PdfReader(pdf_file_obj)
